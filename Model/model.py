@@ -11,6 +11,8 @@ from Networks.Trajectory import *
 from Networks.Trajectory_time import *
 from Data.data_processing import *
 
+#What is the difference betweeen this and FCVPNN_time?
+
 class FCVPNN(nn.Module):
     def __init__(self, seq_len, params_init=None):
         super().__init__()
