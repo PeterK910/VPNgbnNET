@@ -39,9 +39,9 @@ def data_preprocessing(input_len, window, t, day):
   df = df.reset_index(drop=True)
 
   X, y = [], []
-  data = df['Vehicles']/10.0
+  data = df['Vehicles']/10.0            #Why do we need to normalize by 10?
   for i in range(len(df) - window):
-    if i % 168 == 5 + 24*index:
+    if i % 168 == 5 + 24*index:         #Why do we need to shift the hours by 5?
 
       X.append(data[i: i + input_len])
       y.append(data[i: i + window])
@@ -50,7 +50,9 @@ def data_preprocessing(input_len, window, t, day):
   y = np.array(y)
 
 
-  X_train = np.concatenate((X[:t], X[t+1:]), axis=0)
+  X_train = np.concatenate((X[:t], X[t+1:]), axis=0)        #This dataset is for daywise prediction setup, right? 
+                                                            #So, for example, only Mondays are used for training and testing, but one specific Monday is retained for testing. 
+                                                            #Where can I find the prediction setup where the network is trained on 4 days (e.g., Monday to Thursday), and tested on another day (e.g., Friday)? 
   y_train = np.concatenate((y[:t], y[t+1:]), axis=0)
 
   X_test = X[t].reshape(1,input_len)
@@ -80,7 +82,7 @@ class TrafficDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        qrs = self.dataset['samples'][idx, :].reshape(1, -1)
+        qrs = self.dataset['samples'][idx, :].reshape(1, -1)                 #qrs was used for ecg data, please use another variable name.
         target_label = self.dataset['labels'][idx].reshape(1, -1)  # [0]
         sample = [torch.from_numpy(qrs).float(), torch.from_numpy(target_label).float()]
 
@@ -93,7 +95,7 @@ class TrafficDataset(Dataset):
 def load_traffic_real(batch_size, dataset_train, dataset_test):
     """Args:
         batch_size (int): the dataset will be split into mini-batches of this size.
-        data_path (string): Path to the mat file that contains both the QRS complexes and the target labels.
+        data_path (string): Path to the mat file that contains both the QRS complexes and the target labels.       #Adapt the text to the traffic load problem. QRS was for ECG data.
     """
     transform = None
 
