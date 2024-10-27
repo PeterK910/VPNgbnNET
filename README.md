@@ -1,5 +1,5 @@
 # VPNgbNET
-Variable Projection Augmented Nonlinear Grey Bernouli Network
+Variable Projection Augmented Nonlinear Grey Bernouli Networks
 ## MainTraffic.ipynb 
 This notebook serves as the primary tool for training on real traffic estimation data.
 
