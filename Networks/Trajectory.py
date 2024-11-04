@@ -33,10 +33,10 @@ class Trajectory_ODE(nn.Module):
 
     term1 = ((eta_y * self.eta_y_ex) ** (1 - r * self.r_ex ) + (a2 * self.b2) / (a1 * self.b1) ) * torch.exp(self.b1 * a1 * (1 - r * self.r_ex) * t) \
     - (a2 * self.b2) / (a1 * self.b1)
-
+                                                                            #Is there a missing t1 in the factor "(1 - r * self.r_ex) * t"?
     y_esti = term1 ** (1 / (1 - r * self.r_ex))
 
-    x = self.b1 * a1 * y_esti + self.b2 * a2 * y_esti ** (r * self.r_ex)
+    x = self.b1 * a1 * y_esti + self.b2 * a2 * y_esti ** (r * self.r_ex)    #in the ngbm_ODE_R2 paper Eq.(8) the inverse cusum operator and y_esti, y_esti-1 are used to calculate x. Why is this different here? 
 
     return x.unsqueeze(1), y_esti.unsqueeze(1)
 
@@ -71,7 +71,7 @@ class Trajectory_IDE(nn.Module):
     term2 = (((self.eta_y_ex * eta_y) ** ( 1 - r * self.r_ex) + self.b2 * a2 /(self.b1 * a1)) * \
              torch.exp(a1 * (1 - r * self.r_ex) * t) - self.b2 * a2/(self.b1 * a1)) ** ((self.r_ex * r) / (1 - self.r_ex * r))
 
-    x = term1 * term2
+    x = term1 * term2        #which equation is used here?
 
     return x.unsqueeze(1), None
 
