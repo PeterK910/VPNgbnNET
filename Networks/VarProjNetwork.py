@@ -10,7 +10,7 @@ def cusum1(x, h):
 
     y[...,0] = x[...,0]
     for i in range(1, x.shape[-1]):
-      y[...,i] = y[...,i-1] + h * x[...,i]
+      y[...,i] = y[...,i-1] + h * x[...,i]                                        #in Eq. (1) the first is ny not x[...,0]. Why?
 
     return y
   
@@ -20,7 +20,7 @@ def cusum(x,h):
 
     y[...,0] = 0
     for t in range(1, x.shape[-1]):
-        y[...,t] = y[...,t-1] + 0.5 * h * x[...,t-1] + 0.5 * h * x[...,t]
+        y[...,t] = y[...,t-1] + 0.5 * h * x[...,t-1] + 0.5 * h * x[...,t]         #in Eq. (1) the first is ny not y[...,t-1]. Why? -- I guess you left ny to make the calculation of the derivatives easier in the bernoulli function. 
 
     return y
 
@@ -92,19 +92,19 @@ class VPFun(Function):
         return dx, d_params, None
 
   @staticmethod
-  def bernouli(x, params):
+  def bernouli(x, params):                                        #This is OK for now, but after the TDK, when you publish the code, please implement this as a callable "ada" function, like in the template
     #params = [r, ny] which is trainable parameter
 
     r = params[0]
     ny = params[1]
-    y_cusum = cusum(x, 1) #(batch,num_channels, num_samples)
+    y_cusum = cusum(x, 1) #(batch,num_channels, num_samples)        #I understand your thoughts here, cusum(x,1) will result in y(t_i-1) + 0.5*x(t_i-1)+0.5*x(t_i) but for theta we need 0.5*y(t_i-1)+0.5*y(t_i), don't we?   
 
     Theta, dTheta, dTheta1, dTheta2 = [],[],[],[]
 
     for y in y_cusum.squeeze(1):
 
       theta = torch.stack([
-                torch.tensor([ny + y[i], ((ny + y[i]) ** r)])
+                torch.tensor([ny + y[i], ((ny + y[i]) ** r)])        #This is OK.
                 for i in range(1, y.squeeze().shape[0]) #(1,100)
             ])
       Theta.append(theta)
@@ -116,7 +116,7 @@ class VPFun(Function):
             ])
       
 
-      dtheta2 = torch.stack([
+      dtheta2 = torch.stack([                                    #I guess this should be the derivative matrix corresponding to the variable ny.
          torch.tensor([1, r * (ny + y[i])**(r-1) ])
           for i in range(1, y.squeeze().shape[0])
           ])
@@ -124,12 +124,12 @@ class VPFun(Function):
       dTheta1.append(dtheta1)
       dTheta2.append(dtheta2)
 
-    dTheta1 = torch.stack(dTheta1)
+    dTheta1 = torch.stack(dTheta1)                               #OK
     dTheta2 = torch.stack(dTheta2)
 
-    dTheta = torch.stack([dTheta1, dTheta2]).permute(1,0,3,2)
+        dTheta = torch.stack([dTheta1, dTheta2]).permute(1,0,3,2)
 
-    Theta = torch.stack(Theta, dim=0).transpose(1,2)
+    Theta = torch.stack(Theta, dim=0).transpose(1,2)            #OK
     return Theta, dTheta
   
   
